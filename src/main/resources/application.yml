@@ -1,0 +1,73 @@
+spring:
+  # 데이터베이스 설정
+  datasource:
+    url: jdbc:mysql://localhost:3306/budget_db?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    username: root
+    password: yourpassword
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: update # 개발 환경에서는 update, 운영 환경에서는 validate 권장
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        use-new-id-generator-mappings: false
+    open-in-view: false
+
+  # 서버 포트 설정
+  server:
+    port: 8080
+    servlet:
+      context-path: /api
+      encoding:
+        charset: UTF-8
+        enabled: true
+        force: true
+
+# 로깅 설정
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.hicc.budget: DEBUG
+
+# 어플리케이션 설정
+app:
+  jwt:
+    secret: your-jwt-secret-key-very-long-and-secure
+    access-token-expiration: 86400000 # 24시간 (밀리초)
+    refresh-token-expiration: 2592000000 # 30일 (밀리초)
+  cors:
+    allowed-origins: http://localhost:3000, http://127.0.0.1:3000
+
+# 프로필별 설정 분리
+---
+# 개발 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+---
+# 운영 환경 설정
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
