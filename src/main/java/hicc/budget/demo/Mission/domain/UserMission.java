@@ -1,6 +1,5 @@
-package hicc.budget.demo.UserMission.domain;
+package hicc.budget.demo.Mission.domain;
 
-import hicc.budget.demo.Mission.domain.Mission;
 import hicc.budget.demo.User.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,13 +18,14 @@ public class UserMission {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="user_id")
+    //누가 미션 신청했니 ..
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="user_id")
     private User user;
 
     @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="mission_id")
     private Mission mission;
 
-    private Long targetAmount;         // 유저가 커스텀한 목표
     private LocalDate addedDate;       // 참여일
     private LocalDate endDate;         // 종료일(기본 mission.endDate)
     @Enumerated(EnumType.STRING)
