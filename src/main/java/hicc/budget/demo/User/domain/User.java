@@ -1,6 +1,5 @@
 package hicc.budget.demo.User.domain;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,25 +11,41 @@ import lombok.*;
 @Setter
 @Builder
 public class User {
-
-    //private : 필드는 감추고, getter,setter로 접근해서 직접 수정 못하게함
-    //캡슐화를 지키기.
-    //변수명은 소문자로 시작 .
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //db가 id 자동으로 증가시킴
     private Long id;
 
-    private String nickname;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(nullable=false,unique=true)//null 불가, 중복 불가
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable=true)
-    private String profile;//이미지 url 넣기 ..
+    @Column(nullable = false)
+    private String name;
 
+    @Column
+    private String picture;
 
+    @Column
+    private String nickname;
+
+    @Column
+    private String profile; // 프로필 이미지 URL
+
+    // 편의 메서드 추가
+    public String getPicture() {
+        return picture != null ? picture : "";
+    }
+
+    public String getNickname() {
+        return nickname != null ? nickname : name;
+    }
+
+    public String getProfile() {
+        return profile != null ? profile : "";
+    }
 }
