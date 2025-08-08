@@ -83,13 +83,13 @@ class NotificationServiceTest {
     @Test
     void getUnreadCount_ReturnsCorrectCount() {
         // Given
-        when(notificationRepository.countByUserIdAndIsReadFalse(testUser.getId())).thenReturn(3L);
+        when(notificationRepository.countByUserIdAndIsReadFalse(testUser.getId())).thenReturn(3);
         
         // When
-        long count = notificationService.getUnreadCount(testUser.getId());
+        int count = notificationService.getUnreadCount(testUser.getId());
         
         // Then
-        assertEquals(3L, count);
+        assertEquals(3, count);
     }
     
     @Test

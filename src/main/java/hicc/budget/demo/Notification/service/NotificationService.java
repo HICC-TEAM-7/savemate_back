@@ -63,7 +63,7 @@ public class NotificationService {
     }
     
     @Transactional(readOnly = true)
-    public long getUnreadCount(Long userId) {
+    public int getUnreadCount(Long userId) {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 

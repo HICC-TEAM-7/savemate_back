@@ -1,11 +1,12 @@
 package hicc.budget.demo.Notification.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hicc.budget.demo.Notification.domain.Notification;
 import hicc.budget.demo.Notification.domain.NotificationType;
 import hicc.budget.demo.Notification.dto.NotificationResponse;
 import hicc.budget.demo.Notification.service.NotificationService;
-import hicc.budget.demo.config.auth.LoginUser;
+import hicc.budget.demo.User.domain.User;
+import hicc.budget.demo.config.TestConfig;
+import hicc.budget.demo.config.auth.LoginUserArgumentResolver;
 import hicc.budget.demo.config.auth.dto.SessionUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,19 +14,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
+@Import(TestConfig.class)
 class NotificationControllerTest {
     @Mock
     private NotificationService notificationService;
@@ -35,13 +39,24 @@ class NotificationControllerTest {
     
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
-    private SessionUser testUser;
+    private User testUser;
+    private SessionUser testSessionUser;
     
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(notificationController).build();
+        LoginUserArgumentResolver loginUserArgumentResolver = new LoginUserArgumentResolver();
+        mockMvc = MockMvcBuilders.standaloneSetup(notificationController)
+                .setCustomArgumentResolvers(loginUserArgumentResolver)
+                .build();
         objectMapper = new ObjectMapper();
-        testUser = new SessionUser(1L, "testuser", "test@example.com", "Test User");
+testUser = User.builder()
+                .id(1L)
+                .username("tester")
+                .email("test@example.com")
+                .name("Test User")
+                .picture("test-picture-url")
+                .build();
+        testSessionUser = new SessionUser(testUser);
     }
     
     @Test
@@ -55,7 +70,7 @@ class NotificationControllerTest {
         
         // When & Then
         mockMvc.perform(get("/api/notifications")
-                        .sessionAttr("user", testUser))
+                        .requestAttr("user", testSessionUser))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -72,7 +87,7 @@ class NotificationControllerTest {
         
         // When & Then
         mockMvc.perform(get("/api/notifications/unread")
-                        .sessionAttr("user", testUser))
+                        .requestAttr("user", testSessionUser))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1));
@@ -81,29 +96,51 @@ class NotificationControllerTest {
     @Test
     void getUnreadCount_ReturnsCount() throws Exception {
         // Given
-        when(notificationService.getUnreadCount(anyLong())).thenReturn(3L);
+        when(notificationService.getUnreadCount(anyLong())).thenReturn(3);
         
         // When & Then
         mockMvc.perform(get("/api/notifications/unread/count")
-                        .sessionAttr("user", testUser))
+                        .requestAttr("user", testSessionUser))
                 .andExpect(status().isOk())
                 .andExpect(content().string("3"));
     }
     
     @Test
     void markAsRead_UpdatesNotification() throws Exception {
+        // Given
+        doNothing().when(notificationService).markAsRead(anyLong(), anyLong());
+        
         // When & Then
-        mockMvc.perform(post("/api/notifications/1/read")
-                        .sessionAttr("user", testUser))
+        mockMvc.perform(post("/api/notifications/1/read"))
                 .andExpect(status().isOk());
+        
+        verify(notificationService, times(1)).markAsRead(1L, 1L);
     }
     
     @Test
     void markAllAsRead_UpdatesAllNotifications() throws Exception {
+        // Given
+        doNothing().when(notificationService).markAllAsRead(anyLong());
+        
         // When & Then
-        mockMvc.perform(post("/api/notifications/read-all")
-                        .sessionAttr("user", testUser))
+        mockMvc.perform(post("/api/notifications/read-all"))
                 .andExpect(status().isOk());
+        
+        verify(notificationService, times(1)).markAllAsRead(1L);
+    }
+    
+    @Test
+    void getNotifications_EmptyList() throws Exception {
+        // Given
+        when(notificationService.getUserNotifications(anyLong()))
+                .thenReturn(Collections.emptyList());
+        
+        // When & Then
+        mockMvc.perform(get("/api/notifications")
+                        .requestAttr("user", testSessionUser))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
     
     private NotificationResponse createTestNotificationResponse(Long id, String title) {

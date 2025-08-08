@@ -27,7 +27,7 @@ public class NotificationController {
     }
 
     @GetMapping("/unread/count")
-    public ResponseEntity<Long> getUnreadCount(@LoginUser SessionUser user) {
+    public ResponseEntity<Integer> getUnreadCount(@LoginUser SessionUser user) {
         return ResponseEntity.ok(notificationService.getUnreadCount(user.getId()));
     }
 
