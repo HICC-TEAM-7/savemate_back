@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MissionRepository extends JpaRepository<Mission, Long> {
-
+     List<Mission> findById();
     /** 활성화된 전체 목록 */
     List<Mission> findByIsActiveTrue();
 
