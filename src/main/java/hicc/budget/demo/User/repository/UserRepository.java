@@ -10,6 +10,16 @@ import java.util.Set;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
+     * 닉네임으로 유저 존재 여부 확인
+     */
+    boolean existsByNickname(String nickname);
+    
+    /**
+     * 이메일로 유저 존재 여부 확인
+     */
+    boolean existsByEmail(String email);
+    
+    /**
      * 유저 ID로 유저 조회
      */
     @Override
@@ -17,14 +27,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findById(@NonNull Long id);
     
     /**
-     * 아이디나 이름으로 유저 검색 (친구 검색용)
+     * 닉네임이나 이메일로 유저 검색 (친구 검색용)
      */
-    List<User> findByUsernameContainingOrNameContaining(String username, String name);
+    List<User> findByNicknameContainingOrEmailContaining(String nickname, String email);
     
     /**
-     * 아이디로 유저 조회
+     * 닉네임으로 유저 조회
      */
-    Optional<User> findByUsername(String username);
+    Optional<User> findByNickname(String nickname);
     
     /**
      * 이메일로 유저 조회

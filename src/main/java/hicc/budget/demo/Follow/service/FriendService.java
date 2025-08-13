@@ -32,12 +32,12 @@ public class FriendService {
     // 친구 검색
     @Transactional(readOnly = true)
     public List<UserResponseDto> searchUsers(String keyword) {
-        List<User> users = userRepository.findByUsernameContainingOrNameContaining(keyword, keyword);
+        List<User> users = userRepository.findByNicknameContainingOrEmailContaining(keyword, keyword);
         return users.stream()
                 .map(user -> UserResponseDto.builder()
                         .id(user.getId())
-                        .username(user.getUsername())
-                        .name(user.getName())
+                        .nickname(user.getNickname())
+                        .email(user.getEmail())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -64,10 +64,9 @@ public class FriendService {
             throw new FriendException(FriendExceptionType.ALREADY_REQUESTED);
         }
 
-        FriendRequest friendRequest = FriendRequest.builder()
-                .sender(sender)
-                .receiver(receiver)
-                .build();
+        FriendRequest friendRequest = new FriendRequest();
+        friendRequest.setSender(sender);
+        friendRequest.setReceiver(receiver);
 
         friendRequestRepository.save(friendRequest);
         
@@ -87,12 +86,12 @@ public class FriendService {
                 .orElseThrow(() -> new FriendException(FriendExceptionType.USER_NOT_FOUND));
 
         return friendRequestRepository.findByReceiverAndStatus(user, FriendRequestStatus.PENDING).stream()
-                .map(request -> new FriendRequestDto.RequestResponse(
-                        request.getId(),
-                        request.getSender().getId(),
-                        request.getSender().getUsername(),
-                        request.getSender().getName()
-                ))
+                .map(request -> FriendRequestDto.RequestResponse.builder()
+                        .id(request.getId())
+                        .senderId(request.getSender().getId())
+                        .senderNickname(request.getSender().getNickname())
+                        .senderEmail(request.getSender().getEmail())
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -114,8 +113,13 @@ public class FriendService {
         User receiver = request.getReceiver();
 
         // Create friendship both ways
-        Friendship friendship1 = new Friendship(sender, receiver);
-        Friendship friendship2 = new Friendship(receiver, sender);
+        Friendship friendship1 = new Friendship();
+        friendship1.setUser(sender);
+        friendship1.setFriend(receiver);
+        
+        Friendship friendship2 = new Friendship();
+        friendship2.setUser(receiver);
+        friendship2.setFriend(sender);
         
         friendshipRepository.save(friendship1);
         friendshipRepository.save(friendship2);
@@ -142,8 +146,8 @@ public class FriendService {
         return friendshipRepository.findByUser(user).stream()
                 .map(friendship -> UserResponseDto.builder()
                         .id(friendship.getFriend().getId())
-                        .username(friendship.getFriend().getUsername())
-                        .name(friendship.getFriend().getName())
+                        .nickname(friendship.getFriend().getNickname())
+                        .email(friendship.getFriend().getEmail())
                         .build())
                 .collect(Collectors.toList());
     }

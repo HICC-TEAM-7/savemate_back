@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 //트랜잭션 : 성공 or 실패 원칙을 지켜주는 db 작업 안전장치
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 //여러개의 데이터를 담는 list 컬렉션 사용 .
 //여러명의 유저 정보 반환할때.. 각 유저정보를 userresponse dto에 담아서 반환해야.
@@ -29,13 +31,30 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     //회원 생성
 
-    public UserResponse createUser(UserRequest userRequest){
-        User user= userRepository.save(userRequest.toEntity());
+    public UserResponse createUser(UserRequest userRequest) {
+        // 닉네임 중복 체크
+        if (userRepository.existsByNickname(userRequest.getNickname())) {
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+        }
+        
+        // 이메일 중복 체크
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
 
-        return UserResponse.from(user);
+        User user = userRequest.toEntity();
+        
+        // 비밀번호 해싱
+        if (StringUtils.hasText(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        User savedUser = userRepository.save(user);
+        return UserResponse.from(savedUser);
     }
 
     //단건 조회
@@ -58,9 +77,19 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다. id=" + id));
 
-        if (request.getNickname() != null)  user.setNickname(request.getNickname());
-        if (request.getPassword() != null)  user.setPassword(request.getPassword());
-        if (request.getProfile()  != null)  user.setProfile(request.getProfile());
+        // 닉네임 업데이트 요청이 있고, 기존 닉네임과 다른 경우
+        if (request.getNickname() != null && !request.getNickname().equals(user.getNickname())) {
+            // 새로운 닉네임이 이미 사용 중인지 확인
+            if (userRepository.existsByNickname(request.getNickname())) {
+                throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            }
+            user.setNickname(request.getNickname());
+        }
+        
+        // 비밀번호 업데이트
+        if (StringUtils.hasText(request.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
         // 변경 감지(dirty checking)로 자동 반영
         return UserResponse.from(user);

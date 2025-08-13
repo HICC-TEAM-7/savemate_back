@@ -18,7 +18,8 @@ public class NotificationResponse {
     private boolean isRead;
     private String relatedEntityId;
     private Long senderId;
-    private String senderName;
+    private String senderNickname;
+    private String senderEmail;
     private Long missionId;
     private String missionTitle;
     
@@ -34,11 +35,8 @@ public class NotificationResponse {
                 .isRead(notification.isRead())
                 .relatedEntityId(notification.getRelatedEntityId())
                 .senderId(notification.getSender() != null ? notification.getSender().getId() : null)
-                .senderName(notification.getSender() != null ? 
-                    (notification.getSender().getNickname() != null ? 
-                        notification.getSender().getNickname() : 
-                        notification.getSender().getName()) : 
-                    null)
+                .senderNickname(notification.getSender() != null ? notification.getSender().getNickname() : null)
+                .senderEmail(notification.getSender() != null ? notification.getSender().getEmail() : null)
                 .missionId(notification.getMission() != null ? notification.getMission().getId() : null)
                 .missionTitle(notification.getMission() != null ? notification.getMission().getTitle() : null)
                 .createdAt(notification.getCreatedAt())
