@@ -29,6 +29,12 @@ public class MissionController {
         return ResponseEntity.ok(missionService.getAllMissions());
     }
 
+    //미션 하나하나 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<MissionResponseDto> getMissionById(@RequestParam("id") Long missionId) {
+        return ResponseEntity.ok(missionService.getMission(missionId));
+    }
+
     /** 일일 추천 미션 목록 */
     @GetMapping("/daily")
     public ResponseEntity<List<MissionResponseDto>> getDailyRecommendedMissions(

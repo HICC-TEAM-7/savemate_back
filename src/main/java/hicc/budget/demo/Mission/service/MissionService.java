@@ -38,6 +38,14 @@ public class MissionService {
         return MissionResponseDto.from(saved);
     }
 
+    //미션 단일
+    @Transactional(readOnly = true)
+    public MissionResponseDto getMission(Long missionId) {
+        return missionRepository.findById(missionId)
+                .map(MissionResponseDto::from)
+                .orElseThrow(() -> new IllegalArgumentException("해당 미션이 없습니다. id=" + missionId));
+    }
+
     /** 전체 미션 목록 (활성만) */
     @Transactional(readOnly = true)
     public List<MissionResponseDto> getAllMissions() {

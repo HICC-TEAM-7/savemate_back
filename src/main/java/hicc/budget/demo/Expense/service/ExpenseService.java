@@ -31,8 +31,9 @@ public class ExpenseService {
         var user = userRepository.getReferenceById(userId);
         Expense expense = Expense.builder()
                 .date(req.getDate())
-                .paymentType(req.getPaymentType())
-                .paymentCategory(req.getPaymentCategory())
+
+                .paymentType(req.fromTypeString(req.getPaymentType()))
+                .paymentCategory(ExpenseCreateRequestDto.fromCategoryString(req.getPaymentCategory()))
                 .amount(req.getAmount())
                 .user(user)
                 .build();

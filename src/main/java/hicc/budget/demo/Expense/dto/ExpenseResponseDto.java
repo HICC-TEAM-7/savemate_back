@@ -17,6 +17,8 @@ public class ExpenseResponseDto {
     private PaymentCategory category;
     private Long amount;
 
+
+
     public static ExpenseResponseDto from(Expense expense) {
         return ExpenseResponseDto.builder()
                 .expenseId(expense.getId())

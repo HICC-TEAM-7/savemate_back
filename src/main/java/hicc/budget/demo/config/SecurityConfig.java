@@ -2,6 +2,7 @@ package hicc.budget.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,7 +31,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입 허용
+                        .requestMatchers(HttpMethod.POST, "/api/v1/missions").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/missions/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/missions/*/apply").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/expenses").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/v1/expenses/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/expenses/*/apply").permitAll()
+
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll() // 🔹 유저 조회 허용
                         .anyRequest().authenticated()
                 );
 
