@@ -31,11 +31,13 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private NotificationType type;
-    
+
+    @Builder.Default
     @Column(nullable = false)
     private boolean isRead = false;
-    
-    @Column(nullable = false)
+
+    @Builder.Default
+    @Column(name = "created_at", nullable = false/*, updatable = false*/) // updatable=false는 선택
     private LocalDateTime createdAt = LocalDateTime.now();
     
     @Column
@@ -54,5 +56,12 @@ public class Notification {
     
     public void markAsRead() {
         this.isRead = true;
+    }
+
+    @PrePersist
+    void onCreate() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now(); // NOT NULL 제약 위반 방지
+        }
     }
 }

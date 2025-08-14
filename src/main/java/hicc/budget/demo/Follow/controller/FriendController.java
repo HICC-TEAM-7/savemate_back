@@ -29,25 +29,24 @@ public class FriendController {
     @PostMapping("/request")
     public ResponseEntity<Void> sendFriendRequest(
             @RequestBody FriendRequestDto.SendRequest request,
-            @LoginUser SessionUser sessionUser) {
-        friendService.sendFriendRequest(sessionUser.getId(), request.getReceiverId());
+            @RequestHeader("X-USER-ID") Long userId) {                 // ★ 변경
+        friendService.sendFriendRequest(userId, request.getReceiverId());
         return ResponseEntity.ok().build();
     }
 
     // 받은 친구 요청 목록 조회
     @GetMapping("/requests")
     public ResponseEntity<List<FriendRequestDto.RequestResponse>> getReceivedRequests(
-            @LoginUser SessionUser sessionUser) {
-        List<FriendRequestDto.RequestResponse> requests = friendService.getReceivedRequests(sessionUser.getId());
-        return ResponseEntity.ok(requests);
+            @RequestHeader("X-USER-ID") Long userId) {                  // ★ 변경
+        return ResponseEntity.ok(friendService.getReceivedRequests(userId));
     }
 
     // 친구 요청 수락
     @PostMapping("/accept")
     public ResponseEntity<Void> acceptFriendRequest(
             @RequestBody FriendRequestDto.AcceptRequest request,
-            @LoginUser SessionUser sessionUser) {
-        friendService.acceptFriendRequest(request.getRequestId(), sessionUser.getId());
+            @RequestHeader("X-USER-ID") Long userId) {                  // ★ 변경
+        friendService.acceptFriendRequest(request.getRequestId(), userId);
         return ResponseEntity.ok().build();
     }
     
@@ -55,25 +54,24 @@ public class FriendController {
     @PostMapping("/reject")
     public ResponseEntity<Void> rejectFriendRequest(
             @RequestBody FriendRequestDto.AcceptRequest request,
-            @LoginUser SessionUser sessionUser) {
-        friendService.rejectFriendRequest(request.getRequestId(), sessionUser.getId());
+            @RequestHeader("X-USER-ID") Long userId) {                  // ★ 변경
+        friendService.rejectFriendRequest(request.getRequestId(), userId);
         return ResponseEntity.ok().build();
     }
 
     // 친구 목록 조회
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getFriends(
-            @LoginUser SessionUser sessionUser) {
-        List<UserResponseDto> friends = friendService.getFriends(sessionUser.getId());
-        return ResponseEntity.ok(friends);
+            @RequestHeader("X-USER-ID") Long userId) {                  // ★ 변경
+        return ResponseEntity.ok(friendService.getFriends(userId));
     }
 
     // 친구 삭제
     @DeleteMapping("/{friendId}")
     public ResponseEntity<Void> deleteFriend(
             @PathVariable Long friendId,
-            @LoginUser SessionUser sessionUser) {
-        friendService.deleteFriend(sessionUser.getId(), friendId);
+            @RequestHeader("X-USER-ID") Long userId) {                  // ★ 변경
+        friendService.deleteFriend(userId, friendId);
         return ResponseEntity.ok().build();
     }
 }

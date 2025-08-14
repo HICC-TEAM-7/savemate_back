@@ -38,8 +38,16 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,  "/api/v1/expenses/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/expenses/*/apply").permitAll()
 
+                        .requestMatchers(HttpMethod.POST, "/api/friends/request").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/friends/accept").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/friends/reject").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/friends").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/friends/requests").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/api/friends/*").permitAll()
+
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll() // 🔹 유저 조회 허용
+                        .requestMatchers(HttpMethod.GET, "/api/friends/search").permitAll()
                         .anyRequest().authenticated()
                 );
 
