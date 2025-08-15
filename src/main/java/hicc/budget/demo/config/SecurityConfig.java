@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/users").permitAll() // 회원가입
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll() // 🔹 유저 조회 허용
                         .requestMatchers(HttpMethod.GET, "/api/friends/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/notifications", "/api/notifications/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/notifications", "/api/v1/notifications/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

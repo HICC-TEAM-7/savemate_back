@@ -3,8 +3,6 @@ package hicc.budget.demo.Follow.controller;
 import hicc.budget.demo.Follow.dto.FriendRequestDto;
 import hicc.budget.demo.Follow.dto.UserResponseDto;
 import hicc.budget.demo.Follow.service.FriendService;
-import hicc.budget.demo.config.auth.LoginUser;
-import hicc.budget.demo.config.auth.dto.SessionUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
